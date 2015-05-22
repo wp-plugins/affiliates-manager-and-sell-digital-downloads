@@ -3,8 +3,8 @@
 Plugin Name: Affiliates Manager WP iSell Integration
 Plugin URI: https://wpaffiliatemanager.com
 Description: Process an affiliate commission via Affiliates Manager after a WP iSell checkout.
-Version: 1.0
-Author: wp.insider
+Version: 1.0.2
+Author: wp.insider, affmngr
 Author URI: https://wpaffiliatemanager.com
 */
 
@@ -30,7 +30,21 @@ add_action("isell_payment_completed", "wpam_isell_payment_completed", 10, 2);
 
 function wpam_isell_add_custom_parameters($parameters)
 {
-    if(isset($_COOKIE[WPAM_PluginConfig::$RefKey]))
+    if(isset($_COOKIE['wpam_id']))
+    {
+        $name = 'wpam_tracking';
+        $value = $_COOKIE['wpam_id'];
+        $new_val = $name.'='.$value;
+        $current_val = $parameters['custom'];
+        if(empty($current_val)){
+            $parameters['custom'] = $new_val;
+        }
+        else{
+            $parameters['custom'] = $current_val.'&'.$new_val;
+        }
+        WPAM_Logger::log_debug('WP iSell Integration - Adding custom field value. New value: '.$parameters['custom']);
+    }
+    else if(isset($_COOKIE[WPAM_PluginConfig::$RefKey]))
     {
         $name = 'wpam_tracking';
         $value = $_COOKIE[WPAM_PluginConfig::$RefKey];
